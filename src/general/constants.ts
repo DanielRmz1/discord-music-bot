@@ -4,3 +4,8 @@ export enum METHOD {
 	PUT = "put",
 	DELETE = "delete",
 }
+
+export enum STATUS_CODE {
+	OK = 200,
+	SERVER_ERROR = 500,
+}

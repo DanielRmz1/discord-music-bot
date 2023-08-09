@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { Controller } from "../general/interfaces/Controller";
-import { StandardResponse } from "../types/types";
+import { StandardRequestQuery, StandardResponse } from "../types/types";
+import { STATUS_CODE } from "../general/constants";
 
 export class MainController implements Controller {
 	private readonly _path: string = "/api/main";
@@ -14,11 +15,19 @@ export class MainController implements Controller {
 		return routes;
 	};
 
-	private async helloWorld(_req: Request, res: StandardResponse<string>) {
+	private async helloWorld(
+		_req: StandardRequestQuery<{ name: string }>,
+		res: StandardResponse<string>
+	) {
 		try {
-			return res.status(200).json({ data: "Hello World!" });
+			const { name } = _req.query;
+			return res
+				.status(STATUS_CODE.OK)
+				.json({ data: `Hello World! Your name is ${name}` });
 		} catch (error) {
-			return res.status(500).json({ error: new Error("Failed") });
+			return res
+				.status(STATUS_CODE.SERVER_ERROR)
+				.json({ error: new Error("Failed") });
 		}
 	}
 }
