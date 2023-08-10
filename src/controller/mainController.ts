@@ -32,6 +32,7 @@ export class MainController implements Controller {
 	) {
 		try {
 			const name = _req.body.name;
+			console.log("RECEIVED COMMAND: ", name);
 			if (name === COMMANDS.PING) {
 				return res.status(STATUS_CODE.OK).json({
 					type: InteractionResponseType.PONG,
