@@ -1,7 +1,13 @@
-import { Router, Request, Response } from "express";
+import { Router } from "express";
 import { Controller } from "../general/interfaces/Controller";
-import { StandardRequestQuery, StandardResponse } from "../types/types";
-import { STATUS_CODE } from "../general/constants";
+import { StandardRequestBody, StandardResponse } from "../types/types";
+import { COMMANDS, STATUS_CODE } from "../general/constants";
+import {
+	verifyKeyMiddleware,
+	InteractionResponseType,
+} from "discord-interactions";
+import { getPublicKey } from "../general/config";
+import { CommandRequest } from "../general/interfaces/Requests";
 
 export class MainController implements Controller {
 	private readonly _path: string = "/api/main";
@@ -11,23 +17,31 @@ export class MainController implements Controller {
 
 	public getRoutes = () => {
 		const routes = Router();
-		routes.get("/", this.helloWorld);
+		const publicKey = getPublicKey();
+		routes.post(
+			"/interactions",
+			verifyKeyMiddleware(publicKey),
+			this.interactions
+		);
 		return routes;
 	};
 
-	private async helloWorld(
-		_req: StandardRequestQuery<{ name: string }>,
-		res: StandardResponse<string>
+	private async interactions(
+		_req: StandardRequestBody<CommandRequest>,
+		res: StandardResponse
 	) {
 		try {
-			const { name } = _req.query;
-			return res
-				.status(STATUS_CODE.OK)
-				.json({ data: `Hello World! Your name is ${name}` });
+			const name = _req.body.name;
+			if (name === COMMANDS.PING) {
+				return res.status(STATUS_CODE.OK).json({
+					type: InteractionResponseType.PONG,
+					data: {
+						content: "Response from AWS server to discord BOT!!",
+					},
+				});
+			}
 		} catch (error) {
-			return res
-				.status(STATUS_CODE.SERVER_ERROR)
-				.json({ error: new Error("Failed") });
+			return res.status(STATUS_CODE.SERVER_ERROR);
 		}
 	}
 }

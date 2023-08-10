@@ -1,14 +1,15 @@
 import { Response, Request, Send } from "express";
+import { InteractionResponseType } from "discord-interactions";
 
-export interface StandardResponse<T> extends Response {
-	json: Send<
-		{
-			message?: string;
-			error?: Error;
-			data?: T;
-		},
-		this
-	>;
+export interface CommandResponse {
+	type: InteractionResponseType;
+	data: {
+		content?: string;
+	};
+}
+
+export interface StandardResponse extends Response {
+	json: (data: CommandResponse) => Response;
 }
 
 export interface StandardRequest<T, U> extends Request {
